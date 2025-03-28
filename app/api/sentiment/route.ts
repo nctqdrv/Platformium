@@ -52,7 +52,7 @@ Sadəcə bir sözlə cavab ver: müsbət, neytral, mənfi və ya əlaqəsiz.`;
 
     console.log('Sentiment API yanıtı:', msg);
 
-    const sentiment = msg.content[0].text.trim();
+    const sentiment = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '';
     console.log('Belirlenen sentiment:', sentiment);
 
     return NextResponse.json({
