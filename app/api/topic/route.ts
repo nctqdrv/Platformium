@@ -40,12 +40,12 @@ Məsələn:
 
 Cavabların daxilində bahis sözündən istifadə etmə, onun yerinə mərc sözünü istifadə et.
 
-Əgər yazılarda Cahangir Fərəcullayev, Dilarə Bəylərova, Burak Karadaö, Emir Türkmen, Serkan Şener adları istifadə olunubsa, o zaman Azərlotereya | Rəhbərlik cavabını ver.`;
+Əgər yazılarda Cahangir Fərəcullayev, Dilarə Bəylərova, Burak Karadağ, Emir Türkmen, Serkan Şener adları istifadə olunubsa, o zaman Azərlotereya | Rəhbərlik cavabını ver.`;
 
     const msg = await anthropic.messages.create({
       model: "claude-3-7-sonnet-20250219",
       max_tokens: 20000,
-      temperature: 1,
+      temperature: 0.2,
       system: systemPrompt,
       messages: [
         {
@@ -62,7 +62,7 @@ Cavabların daxilində bahis sözündən istifadə etmə, onun yerinə mərc sö
 
     console.log('Topic API yanıtı:', msg);
 
-    const topic = msg.content[0].text.trim();
+    const topic = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '';
     console.log('Belirlenen topic:', topic);
 
     return NextResponse.json({
