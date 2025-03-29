@@ -55,6 +55,11 @@ export default function Home() {
       console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
       console.log('Excel veri sayısı:', excelData.length);
 
+      // İlk satırı kontrol et
+      if (excelData.length > 0) {
+        console.log('Excel sütunları:', Object.keys(excelData[0]));
+      }
+
       for (const row of excelData) {
         try {
           // Tarih formatını düzeltme
@@ -74,21 +79,24 @@ export default function Home() {
             formattedSavedAt = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00Z`;
           }
 
-          console.log('İşlenecek veri:', row);
+          // Veriyi hazırla
+          const dataToInsert = {
+            ...row,
+            date: formattedDate,
+            saved_at: formattedSavedAt
+          };
+
+          console.log('İşlenecek veri:', dataToInsert);
 
           const { data, error } = await supabase
             .from('documents')
-            .insert([
-              {
-                ...row,
-                date: formattedDate,
-                saved_at: formattedSavedAt
-              }
-            ])
+            .insert([dataToInsert])
             .select();
 
           if (error) {
-            console.error('Satır yükleme hatası:', error);
+            console.error('Satır yükleme hatası:', error.message);
+            console.error('Hata detayları:', error.details);
+            console.error('Hata kodu:', error.code);
             errorCount++;
           } else {
             console.log('Başarılı yükleme:', data);
@@ -100,7 +108,7 @@ export default function Home() {
         }
       }
 
-      alert(`Yükleme tamamlandı!\nBaşarılı: ${successCount}\nBaşarısız: ${errorCount}`);
+      alert(`Yükleme tamamlandı!\nBaşarılı: ${successCount}\nBaşarısız: ${errorCount}\n\nHata detayları için konsolu kontrol edin.`);
     } catch (error) {
       console.error('Genel yükleme hatası:', error);
       alert('Veri yükleme sırasında bir hata oluştu!');
