@@ -173,8 +173,7 @@ export default function Home() {
       const { data: documents } = await supabase
         .from('documents')
         .select('*')
-        .is('topic', null)
-        .or('topic.eq.""');
+        .or('topic.is.null,topic.eq.""');
 
       if (!documents?.length) {
         alert('Analiz edilecek döküman bulunamadı!');
@@ -267,8 +266,7 @@ export default function Home() {
       const { data: documents } = await supabase
         .from('documents')
         .select('*')
-        .is('sentiment', null)
-        .or('sentiment.eq.""');
+        .or('sentiment.is.null,sentiment.eq.""');
 
       if (!documents?.length) {
         alert('Analiz edilecek döküman bulunamadı!');
