@@ -74,8 +74,7 @@ export default function Home() {
             .from('documents')
             .insert([
               {
-                title: row.Title || null,
-                text: row.Text || null,
+                ...row, // Tüm sütunları ekle
                 date: formattedDate,
                 saved_at: formattedSavedAt
               }
