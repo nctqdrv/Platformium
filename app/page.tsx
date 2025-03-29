@@ -51,6 +51,10 @@ export default function Home() {
       let successCount = 0;
       let errorCount = 0;
 
+      // Supabase bağlantısını kontrol et
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+      console.log('Excel veri sayısı:', excelData.length);
+
       for (const row of excelData) {
         try {
           // Tarih formatını düzeltme
@@ -70,20 +74,24 @@ export default function Home() {
             formattedSavedAt = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00Z`;
           }
 
-          const { error } = await supabase
+          console.log('İşlenecek veri:', row);
+
+          const { data, error } = await supabase
             .from('documents')
             .insert([
               {
-                ...row, // Tüm sütunları ekle
+                ...row,
                 date: formattedDate,
                 saved_at: formattedSavedAt
               }
-            ]);
+            ])
+            .select();
 
           if (error) {
             console.error('Satır yükleme hatası:', error);
             errorCount++;
           } else {
+            console.log('Başarılı yükleme:', data);
             successCount++;
           }
         } catch (error) {
