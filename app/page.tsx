@@ -81,9 +81,26 @@ export default function Home() {
 
           // Veriyi hazırla
           const dataToInsert = {
-            ...row,
+            title: row.Title || null,
+            text: row.Text || null,
             date: formattedDate,
-            saved_at: formattedSavedAt
+            saved_at: formattedSavedAt,
+            post_type: row["Post type"] || null,
+            content_types: row["Content Types"] || null,
+            url: row.URL || null,
+            author: row.Author || null,
+            profile: row.Profile || null,
+            source: row.Source || null,
+            publication_place: row["Publication place"] || null,
+            resource_type: row["Resource type"] || null,
+            language: row.Language || null,
+            country: row.Country || null,
+            city: row.City || null,
+            engagement: row.Engagement || null,
+            processed: row.Processed || null,
+            subjects: row.Subjects || null,
+            auto_categories: row["Auto-categories"] || null,
+            tags: row.Tags || null
           };
 
           console.log('İşlenecek veri:', dataToInsert);
