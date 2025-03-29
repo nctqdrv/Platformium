@@ -172,31 +172,40 @@ export default function Home() {
       setLoading(true);
       const { data: documents } = await supabase
         .from('documents')
-        .select('*')
-        .is('topic', null);
+        .select('*');
 
       if (!documents?.length) {
         alert('Analiz edilecek döküman bulunamadı!');
         return;
       }
 
+      // JavaScript tarafında filtreleme
+      const documentsToAnalyze = documents.filter(doc => 
+        doc.topic === null || doc.topic === ''
+      );
+
+      if (!documentsToAnalyze.length) {
+        alert('Analiz edilecek döküman bulunamadı!');
+        return;
+      }
+
       setProgressInfo({
         current: 0,
-        total: documents.length,
+        total: documentsToAnalyze.length,
         percentage: 0,
         type: 'topic'
       });
 
       let analyzedCount = 0;
-      for (let i = 0; i < documents.length; i++) {
-        const doc = documents[i];
+      for (let i = 0; i < documentsToAnalyze.length; i++) {
+        const doc = documentsToAnalyze[i];
         
         const contentToAnalyze = doc.title 
           ? `Ana Post: ${doc.title}\nYorum: ${doc.text || ''}`
           : `Ana Post: ${doc.text}`;
 
         try {
-          console.log(`Döküman ${i + 1}/${documents.length} topic analizi yapılıyor:`, contentToAnalyze);
+          console.log(`Döküman ${i + 1}/${documentsToAnalyze.length} topic analizi yapılıyor:`, contentToAnalyze);
 
           const response = await fetch('/api/topic', {
             method: 'POST',
@@ -235,7 +244,7 @@ export default function Home() {
           setProgressInfo(prev => ({
             ...prev,
             current: analyzedCount,
-            percentage: (analyzedCount / documents.length) * 100
+            percentage: (analyzedCount / documentsToAnalyze.length) * 100
           }));
 
         } catch (error) {
@@ -265,31 +274,40 @@ export default function Home() {
       setLoading(true);
       const { data: documents } = await supabase
         .from('documents')
-        .select('*')
-        .is('sentiment', null);
+        .select('*');
 
       if (!documents?.length) {
         alert('Analiz edilecek döküman bulunamadı!');
         return;
       }
 
+      // JavaScript tarafında filtreleme
+      const documentsToAnalyze = documents.filter(doc => 
+        doc.sentiment === null || doc.sentiment === ''
+      );
+
+      if (!documentsToAnalyze.length) {
+        alert('Analiz edilecek döküman bulunamadı!');
+        return;
+      }
+
       setProgressInfo({
         current: 0,
-        total: documents.length,
+        total: documentsToAnalyze.length,
         percentage: 0,
         type: 'sentiment'
       });
 
       let analyzedCount = 0;
-      for (let i = 0; i < documents.length; i++) {
-        const doc = documents[i];
+      for (let i = 0; i < documentsToAnalyze.length; i++) {
+        const doc = documentsToAnalyze[i];
         
         const contentToAnalyze = doc.title 
           ? `Ana Post: ${doc.title}\nYorum: ${doc.text || ''}`
           : `Ana Post: ${doc.text}`;
 
         try {
-          console.log(`Döküman ${i + 1}/${documents.length} sentiment analizi yapılıyor:`, contentToAnalyze);
+          console.log(`Döküman ${i + 1}/${documentsToAnalyze.length} sentiment analizi yapılıyor:`, contentToAnalyze);
 
           const response = await fetch('/api/sentiment', {
             method: 'POST',
@@ -328,7 +346,7 @@ export default function Home() {
           setProgressInfo(prev => ({
             ...prev,
             current: analyzedCount,
-            percentage: (analyzedCount / documents.length) * 100
+            percentage: (analyzedCount / documentsToAnalyze.length) * 100
           }));
 
         } catch (error) {
