@@ -44,7 +44,7 @@ Summary: Bu kateqoriya mərc platformalarında qazanılan böyük uduşlar, lote
 Cluster 9. Misli/Azərlotereya Şirkətləri ilə Bağlı Tənqidi Xəbərlər
 Summary: Bu kateqoriya Misli və Azərlotereya şirkətləri, onların idarəçiliyi və mübahisəli məsələləri ilə bağlı tənqidi xəbərləri əhatə edir. Azərlotereyanın idarəetməyə verildiyi "Demirören Holding" şirkətinin rəhbərlərinin həbs edilməsi, Azərlotereyanın sədr müşavirinin böyük məbləğdə lotereya udması iddiası, erməni bayrağı paylaşımı qalmaqalı və şirkətin rəhbərliyinə qarşı etik/siyasi tənqidlər bu kateqoriyanın əsas mövzularıdır. Həmçinin şirkətin vergi ödəmələri, Türkiyədəki siyasi hadisələrlə əlaqəsi və şəffaflıq məsələləri də burada müzakirə olunur.
 
-Mətn: ${content}`
+Mətn: ` + content
         }
       ]
     });
