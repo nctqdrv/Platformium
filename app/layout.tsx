@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Excel Analizatoru",
-  description: "Excel fayllarını analiz et və Supabase'ə yüklə",
+  title: 'Platformium: Müştəri fikirlərini anlayın',
+  description: 'Excel dosyalarını yükləyin və müştəri fikirlərini analiz edin',
 };
 
 export default function RootLayout({

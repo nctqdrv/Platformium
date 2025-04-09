@@ -462,7 +462,14 @@ export default function Home() {
         <div className="col-md-8">
           <div className="card shadow-sm border-0">
             <div className="card-body p-4">
-              <h1 className="text-center mb-4 text-primary">Excel Faylını Yüklə və Analiz Et</h1>
+              <div className="d-flex align-items-center mb-4">
+                <img 
+                  src="/platformium-logo.png" 
+                  alt="Platformium AI" 
+                  className="me-3"
+                  style={{ height: '32px' }}
+                />
+              </div>
               
               <div className="mb-4">
                 <div className="input-group">
@@ -474,9 +481,14 @@ export default function Home() {
                     id="excelFile"
                     placeholder="Fayl seçin..."
                   />
-                  <label className="input-group-text bg-light border-0" htmlFor="excelFile">
-                    <i className="bi bi-file-earmark-excel text-primary"></i>
-                  </label>
+                  <button
+                    onClick={handleUpload}
+                    disabled={loading || !excelData.length}
+                    className={`btn btn-outline-secondary ${loading || !excelData.length ? 'disabled' : ''}`}
+                  >
+                    <i className="bi bi-cloud-upload me-2"></i>
+                    {loading ? 'Yüklənir...' : 'Supabase\'ə Yüklə'}
+                  </button>
                 </div>
                 
                 {fileName && (
@@ -487,50 +499,39 @@ export default function Home() {
                 )}
               </div>
 
-              <div className="d-flex flex-column gap-3">
+              <div className="d-flex justify-content-between gap-2">
                 <button
-                  onClick={handleUpload}
-                  disabled={loading || !excelData.length}
-                  className={`btn btn-outline-secondary btn-sm w-auto align-self-end ${loading || !excelData.length ? 'disabled' : ''}`}
+                  onClick={analyzeTopics}
+                  disabled={loading}
+                  className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
                 >
-                  <i className="bi bi-cloud-upload me-2"></i>
-                  {loading ? 'Yüklənir...' : 'Supabase\'ə Yüklə'}
+                  <i className="bi bi-tags me-2"></i>
+                  {loading && progressInfo?.type === 'topic' 
+                    ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
+                    : 'Mövzu Analizi'}
                 </button>
 
-                <div className="d-flex justify-content-between gap-2">
-                  <button
-                    onClick={analyzeTopics}
-                    disabled={loading}
-                    className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
-                  >
-                    <i className="bi bi-tags me-2"></i>
-                    {loading && progressInfo?.type === 'topic' 
-                      ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                      : 'Mövzu Analizi'}
-                  </button>
+                <button
+                  onClick={analyzeSentiment}
+                  disabled={loading}
+                  className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
+                >
+                  <i className="bi bi-emoji-smile me-2"></i>
+                  {loading && progressInfo?.type === 'sentiment' 
+                    ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
+                    : 'Emosional Analiz'}
+                </button>
 
-                  <button
-                    onClick={analyzeSentiment}
-                    disabled={loading}
-                    className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
-                  >
-                    <i className="bi bi-emoji-smile me-2"></i>
-                    {loading && progressInfo?.type === 'sentiment' 
-                      ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                      : 'Emosional Analiz'}
-                  </button>
-
-                  <button
-                    onClick={analyzeCluster}
-                    disabled={loading}
-                    className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
-                  >
-                    <i className="bi bi-diagram-3 me-2"></i>
-                    {loading && progressInfo?.type === 'cluster' 
-                      ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                      : 'Klaster Analizi'}
-                  </button>
-                </div>
+                <button
+                  onClick={analyzeCluster}
+                  disabled={loading}
+                  className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
+                >
+                  <i className="bi bi-diagram-3 me-2"></i>
+                  {loading && progressInfo?.type === 'cluster' 
+                    ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
+                    : 'Klaster Analizi'}
+                </button>
               </div>
 
               {progressInfo && progressInfo.percentage > 0 && (
