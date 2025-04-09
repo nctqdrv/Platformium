@@ -40,126 +40,89 @@ export default function Home() {
     }
   };
 
+  const readExcelFile = async (file: File) => {
+    const workbook = await XLSX.read(file, { type: 'buffer' });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    return XLSX.utils.sheet_to_json(worksheet);
+  };
+
   const handleUpload = async () => {
-    try {
-      setLoading(true);
-      let successCount = 0;
-      let errorCount = 0;
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = '.xlsx,.xls';
+    
+    fileInput.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
 
-      // Supabase bağlantısını kontrol et
-      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-      console.log('Excel veri sayısı:', excelData.length);
-
-      // İlk satırı kontrol et
-      if (excelData.length > 0) {
-        console.log('Excel sütunları:', Object.keys(excelData[0]));
-      }
-
-      for (const row of excelData) {
-        try {
-          // Tarih formatını düzeltme
-          let formattedDate = null;
-          let formattedSavedAt = null;
-
-          if (row.Date) {
-            // DD.MM.YYYY formatındaki tarihi YYYY-MM-DD formatına çevirme
-            const [day, month, year] = row.Date.split('.');
-            formattedDate = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-          }
-
-          if (row["Saved at"]) {
-            // DD.MM.YYYY HH:mm formatındaki tarihi ISO formatına çevirme
-            const [datePart, timePart] = row["Saved at"].split(' ');
-            const [day, month, year] = datePart.split('.');
-            formattedSavedAt = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart}:00Z`;
-          }
-
-          // Veriyi hazırla
-          const dataToInsert = {
-            date: formattedDate,
-            time: row.Time || null,
-            saved_at: formattedSavedAt,
+      try {
+        const data = await readExcelFile(file);
+        const dataToInsert = data.map((row: any) => {
+          // Tarih ve saat değerlerini kontrol et ve dönüştür
+          const date = row.Date ? new Date(row.Date) : null;
+          const time = row.Time ? new Date(row.Time) : null;
+          
+          return {
+            date: date ? date.toISOString().split('T')[0] : null,
+            time: time ? time.toISOString().split('T')[1].split('.')[0] : null,
             title: row.Title || null,
             text: row.Text || null,
-            post_type: row["Post type"] || null,
-            content_types: row["Content Types"] || null,
-            source_specific_format: row["Source specific format"] ? parseFloat(row["Source specific format"]) : null,
-            url: row.URL || null,
             sentiment: row.Sentiment || null,
-            author: row.Author || null,
-            nickname: row.Nickname || null,
-            profile: row.Profile || null,
-            subscribers: row.Subscribers ? parseFloat(row.Subscribers) : null,
-            demography: row.Demography || null,
-            age: row.Age ? parseFloat(row.Age) : null,
-            source: row.Source || null,
-            publication_place: row["Publication place"] || null,
-            publication_place_profile: row["Publication place profile"] || null,
-            publication_place_subscribers: row["Publication place subscribers"] ? parseFloat(row["Publication place subscribers"]) : null,
-            resource_type: row["Resource type"] || null,
+            likes: row.Likes ? Number(row.Likes) : 0,
+            comments: row.Comments ? Number(row.Comments) : 0,
+            shares: row.Shares ? Number(row.Shares) : 0,
+            views: row.Views ? Number(row.Views) : 0,
+            engagement_rate: row.EngagementRate ? Number(row.EngagementRate) : 0,
+            reach: row.Reach ? Number(row.Reach) : 0,
+            impressions: row.Impressions ? Number(row.Impressions) : 0,
+            click_through_rate: row.ClickThroughRate ? Number(row.ClickThroughRate) : 0,
+            link_clicks: row.LinkClicks ? Number(row.LinkClicks) : 0,
+            profile_visits: row.ProfileVisits ? Number(row.ProfileVisits) : 0,
+            hashtag_count: row.HashtagCount ? Number(row.HashtagCount) : 0,
+            mention_count: row.MentionCount ? Number(row.MentionCount) : 0,
+            media_type: row.MediaType || null,
+            platform: row.Platform || null,
             language: row.Language || null,
-            country: row.Country || null,
-            regions: row.Regions || null,
-            city: row.City || null,
-            notes: row.Notes ? parseFloat(row.Notes) : null,
-            reactions: row.Reactions ? parseFloat(row.Reactions) : null,
-            engagement: row.Engagement ? parseFloat(row.Engagement) : null,
-            likes: row.Likes ? parseFloat(row.Likes) : null,
-            love: row.Love ? parseFloat(row.Love) : null,
-            haha: row.Haha ? parseFloat(row.Haha) : null,
-            wow: row.Wow ? parseFloat(row.Wow) : null,
-            sad: row.Sad ? parseFloat(row.Sad) : null,
-            angry: row.Angry ? parseFloat(row.Angry) : null,
-            care: row.Care ? parseFloat(row.Care) : null,
-            dislikes: row.Dislikes ? parseFloat(row.Dislikes) : null,
-            comments: row.Comments ? parseFloat(row.Comments) : null,
-            reposts: row.Reposts ? parseFloat(row.Reposts) : null,
-            views: row.Views ? parseFloat(row.Views) : null,
-            impressions_owned_posts: row["Impressions (owned posts)"] ? parseFloat(row["Impressions (owned posts)"]) : null,
-            reach_owned_posts: row["Reach (owned posts)"] ? parseFloat(row["Reach (owned posts)"]) : null,
-            saves: row.Saves ? parseFloat(row.Saves) : null,
-            potential_reach: row["Potential reach"] ? parseFloat(row["Potential reach"]) : null,
-            rating: row.Rating ? parseFloat(row.Rating) : null,
-            image_url: row["Image URL"] || null,
-            assigned_to: row["Assigned to"] ? parseFloat(row["Assigned to"]) : null,
-            processed: row.Processed || null,
-            aspects: row.Aspects ? parseFloat(row.Aspects) : null,
-            subjects: row.Subjects || null,
-            auto_categories: row["Auto-categories"] ? parseFloat(row["Auto-categories"]) : null,
-            trend: row.Trend ? parseFloat(row.Trend) : null,
-            tags: row.Tags ? parseFloat(row.Tags) : null,
-            test: row.test ? parseFloat(row.test) : null
+            location: row.Location || null,
+            device_type: row.DeviceType || null,
+            post_type: row.PostType || null,
+            campaign_name: row.CampaignName || null,
+            ad_spend: row.AdSpend ? Number(row.AdSpend) : 0,
+            target_audience: row.TargetAudience || null,
+            hashtags: row.Hashtags || null,
+            mentions: row.Mentions || null,
+            links: row.Links || null,
+            topics: row.Topics || null,
+            sentiment_score: row.SentimentScore ? Number(row.SentimentScore) : 0,
+            sentiment_magnitude: row.SentimentMagnitude ? Number(row.SentimentMagnitude) : 0,
+            cluster_id: row.ClusterId ? Number(row.ClusterId) : null,
+            cluster_name: row.ClusterName || null,
+            cluster_description: row.ClusterDescription || null,
+            cluster_size: row.ClusterSize ? Number(row.ClusterSize) : 0,
+            cluster_silhouette_score: row.ClusterSilhouetteScore ? Number(row.ClusterSilhouetteScore) : 0,
+            cluster_centroid: row.ClusterCentroid || null,
+            cluster_keywords: row.ClusterKeywords || null,
+            cluster_sentiment: row.ClusterSentiment || null,
+            cluster_engagement: row.ClusterEngagement ? Number(row.ClusterEngagement) : 0,
+            cluster_trend: row.ClusterTrend || null,
+            cluster_insights: row.ClusterInsights || null,
+            cluster_recommendations: row.ClusterRecommendations || null
           };
+        });
 
-          console.log('İşlenecek veri:', dataToInsert);
+        const { error } = await supabase
+          .from('social_media_posts')
+          .insert(dataToInsert);
 
-          const { data, error } = await supabase
-            .from('documents')
-            .insert([dataToInsert])
-            .select();
-
-          if (error) {
-            console.error('Satır yükleme hatası:', error.message);
-            console.error('Hata detayları:', error.details);
-            console.error('Hata kodu:', error.code);
-            errorCount++;
-          } else {
-            console.log('Başarılı yükleme:', data);
-            successCount++;
-          }
-        } catch (error) {
-          console.error('Satır işleme hatası:', error);
-          errorCount++;
-        }
+        if (error) throw error;
+        alert('Veriler başarıyla yüklendi!');
+      } catch (error) {
+        console.error('Veri yükleme hatası:', error);
+        alert('Veri yükleme sırasında bir hata oluştu!');
       }
+    };
 
-      alert(`Yükleme tamamlandı!\nBaşarılı: ${successCount}\nBaşarısız: ${errorCount}\n\nHata detayları için konsolu kontrol edin.`);
-    } catch (error) {
-      console.error('Genel yükleme hatası:', error);
-      alert('Veri yükleme sırasında bir hata oluştu!');
-    } finally {
-      setLoading(false);
-    }
+    fileInput.click();
   };
 
   const analyzeTopics = async () => {
