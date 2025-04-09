@@ -48,7 +48,7 @@ export default function Home() {
 
   const handleUpload = async () => {
     if (!excelData.length) {
-      alert('Lütfen önce bir Excel dosyası seçin!');
+      alert('Zəhmət olmasa əvvəlcə Excel faylı seçin!');
       return;
     }
 
@@ -181,12 +181,12 @@ export default function Home() {
         console.log(`Batch ${i / batchSize + 1} yüklendi:`, data);
       }
 
-      alert('Veriler başarıyla yüklendi!');
+      alert('Məlumatlar uğurla yükləndi!');
     } catch (error) {
       console.error('Veri yükleme hatası:', error);
       console.error('Hata tipi:', typeof error);
       console.error('Hata mesajı:', error instanceof Error ? error.message : 'Bilinmeyen hata');
-      alert('Veri yükleme sırasında bir hata oluştu! Lütfen konsolu kontrol edin.');
+      alert('Məlumatların yüklənməsi zamanı xəta baş verdi! Zəhmət olmasa konsolu yoxlayın.');
     } finally {
       setLoading(false);
     }
@@ -200,7 +200,7 @@ export default function Home() {
         .select('id, title, text');
 
       if (!documents?.length) {
-        alert('Analiz edilecek döküman bulunamadı!');
+        alert('Təhlil ediləcək sənəd tapılmadı!');
         return;
       }
 
@@ -269,11 +269,11 @@ export default function Home() {
         }
       }
       
-      alert(`Topic analizi tamamlandı! ${analyzedCount} kayıt güncellendi.`);
+      alert(`Mövzu təhlili tamamlandı! ${analyzedCount} qeyd yeniləndi.`);
 
     } catch (error) {
       console.error('Genel hata:', error);
-      alert('Topic analizi sırasında bir hata oluştu!');
+      alert('Mövzu təhlili zamanı xəta baş verdi!');
     } finally {
       setLoading(false);
       setProgressInfo(null);
@@ -288,7 +288,7 @@ export default function Home() {
         .select('id, title, text');
 
       if (!documents?.length) {
-        alert('Analiz edilecek döküman bulunamadı!');
+        alert('Təhlil ediləcək sənəd tapılmadı!');
         return;
       }
 
@@ -357,11 +357,11 @@ export default function Home() {
         }
       }
       
-      alert(`Sentiment analizi tamamlandı! ${analyzedCount} kayıt güncellendi.`);
+      alert(`Emosional təhlil tamamlandı! ${analyzedCount} qeyd yeniləndi.`);
 
     } catch (error) {
       console.error('Genel hata:', error);
-      alert('Sentiment analizi sırasında bir hata oluştu!');
+      alert('Emosional təhlil zamanı xəta baş verdi!');
     } finally {
       setLoading(false);
       setProgressInfo(null);
@@ -376,7 +376,7 @@ export default function Home() {
         .select('id, title, text');
 
       if (!documents?.length) {
-        alert('Analiz edilecek döküman bulunamadı!');
+        alert('Təhlil ediləcək sənəd tapılmadı!');
         return;
       }
 
@@ -445,11 +445,11 @@ export default function Home() {
         }
       }
       
-      alert(`Cluster analizi tamamlandı! ${analyzedCount} kayıt güncellendi.`);
+      alert(`Klaster təhlili tamamlandı! ${analyzedCount} qeyd yeniləndi.`);
 
     } catch (error) {
       console.error('Genel hata:', error);
-      alert('Cluster analizi sırasında bir hata oluştu!');
+      alert('Klaster təhlili zamanı xəta baş verdi!');
     } finally {
       setLoading(false);
       setProgressInfo(null);
@@ -472,7 +472,7 @@ export default function Home() {
               </div>
               
               <div className="mb-4">
-                <div className="input-group">
+                <div className="input-group mb-3">
                   <input
                     type="file"
                     accept=".xlsx"
@@ -492,9 +492,9 @@ export default function Home() {
                 </div>
                 
                 {fileName && (
-                  <div className="alert alert-success mt-2 mb-0 border-0">
-                    <i className="bi bi-check-circle-fill me-2"></i>
-                    Seçilmiş fayl: {fileName}
+                  <div className="text-muted small fst-italic">
+                    <i className="bi bi-file-earmark me-1"></i>
+                    {fileName}
                   </div>
                 )}
               </div>
