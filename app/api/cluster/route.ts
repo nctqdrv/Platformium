@@ -1,21 +1,24 @@
 import { NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
 
-const anthropic = new Anthropic({
-  apiKey: process.env.ANTHROPIC_API_KEY,
-});
-
 export async function POST(request: Request) {
   try {
     const { content } = await request.json();
+    console.log('Gelen içerik:', content);
 
-    const response = await anthropic.messages.create({
-      model: 'claude-3-sonnet-20240229',
-      max_tokens: 1000,
-      messages: [
-        {
-          role: 'user',
-          content: `Sən cluster analiz toolusan. Yazılan mətnləri oxu və onları aşağıda yazlmış clusterlara görə cavabla. Cavabın sadəcə clusterin nömrəsini göstərsin. Cluster-lar:
+    if (!content) {
+      console.error('İçerik boş');
+      return NextResponse.json(
+        { error: 'İçerik boş olamaz' },
+        { status: 400 }
+      );
+    }
+
+    const anthropic = new Anthropic({
+      apiKey: process.env.ANTHROPIC_API_KEY,
+    });
+
+    const prompt = `Sən cluster analiz toolusan. Yazılan mətnləri oxu və onları aşağıda yazlmış clusterlara görə cavabla. Cavabın sadəcə clusterin nömrəsini göstərsin. Cluster-lar:
 
 Cluster 1. Misli.az və Digər Mərc Platformalarının Funksionallığı, İstifadəçi Təcrübəsi və Hesab İdarəetməsi
 Summary: Bu kateqoriya Misli.az və digər mərc platformalarının istifadəsi, texniki funksionallığı, xidmətləri, istifadəçi şikayətləri və təcrübələrini əhatə edir. İstifadəçilər platformaların işləmə problemləri, hesab açma, təsdiqlənmə, pul köçürmə/çıxarma çətinlikləri, hesabların bloklanması və ümumi texniki nasazlıqlar haqqında danışırlar. Eyni zamanda, hesab alqı-satqısı və kiçik məbləğdə borc istəkləri də bu kateqoriyanın vacib hissəsidir. 18 yaşdan aşağı şəxslərin təsdiqlənmiş hesab əldə etmə yolları, hesabların qiymətləri və etibarlılıq məsələləri də geniş müzakirə olunur. Həmçinin müxtəlif platformaların müqayisəsi, üstünlükləri və çatışmazlıqları da burada əks olunur.
@@ -44,15 +47,39 @@ Summary: Bu kateqoriya mərc platformalarında qazanılan böyük uduşlar, lote
 Cluster 9. Misli/Azərlotereya Şirkətləri ilə Bağlı Tənqidi Xəbərlər
 Summary: Bu kateqoriya Misli və Azərlotereya şirkətləri, onların idarəçiliyi və mübahisəli məsələləri ilə bağlı tənqidi xəbərləri əhatə edir. Azərlotereyanın idarəetməyə verildiyi "Demirören Holding" şirkətinin rəhbərlərinin həbs edilməsi, Azərlotereyanın sədr müşavirinin böyük məbləğdə lotereya udması iddiası, erməni bayrağı paylaşımı qalmaqalı və şirkətin rəhbərliyinə qarşı etik/siyasi tənqidlər bu kateqoriyanın əsas mövzularıdır. Həmçinin şirkətin vergi ödəmələri, Türkiyədəki siyasi hadisələrlə əlaqəsi və şəffaflıq məsələləri də burada müzakirə olunur.
 
-Mətn: ` + content
+Mətn: ${content}`;
+
+    console.log('Gönderilen prompt:', prompt);
+
+    const response = await anthropic.messages.create({
+      model: 'claude-3-sonnet-20240229',
+      max_tokens: 1000,
+      messages: [
+        {
+          role: 'user',
+          content: prompt
         }
       ]
     });
 
-    const cluster = response.content[0].type === 'text' ? response.content[0].text.trim() : '';
+    console.log('API yanıtı:', response);
+
+    if (!response.content || !response.content[0] || response.content[0].type !== 'text') {
+      console.error('Geçersiz API yanıtı:', response);
+      return NextResponse.json(
+        { error: 'Geçersiz API yanıtı' },
+        { status: 500 }
+      );
+    }
+
+    const cluster = response.content[0].text.trim();
+    console.log('Belirlenen cluster:', cluster);
+
     return NextResponse.json({ cluster });
   } catch (error) {
     console.error('Cluster analizi sırasında hata oluştu:', error);
+    console.error('Hata detayları:', error instanceof Error ? error.message : 'Bilinmeyen hata');
+    console.error('Hata stack:', error instanceof Error ? error.stack : 'Stack trace yok');
     return NextResponse.json(
       { error: 'Cluster analizi sırasında bir hata oluştu' },
       { status: 500 }
