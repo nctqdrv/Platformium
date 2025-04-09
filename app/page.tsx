@@ -457,97 +457,114 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm">
-        <h1 className="text-2xl mb-8 text-center">Excel Yükle ve Analiz Et</h1>
-        
-        <div className="flex flex-col items-center gap-4">
-          <input
-            type="file"
-            accept=".xlsx"
-            onChange={handleFileChange}
-            className="mb-4"
-          />
-          
-          {fileName && (
-            <p className="text-green-500">Seçilen dosya: {fileName}</p>
-          )}
-
-          <div className="flex gap-4">
-            <button
-              onClick={handleUpload}
-              disabled={loading || !excelData.length}
-              className={`px-4 py-2 rounded ${
-                loading || !excelData.length
-                  ? 'bg-gray-400'
-                  : 'bg-blue-500 hover:bg-blue-600'
-              } text-white`}
-            >
-              {loading ? 'Yükleniyor...' : 'Supabase\'e Aktar'}
-            </button>
-
-            <button
-              onClick={analyzeTopics}
-              disabled={loading}
-              className={`px-4 py-2 rounded ${
-                loading
-                  ? 'bg-gray-400'
-                  : 'bg-green-500 hover:bg-green-600'
-              } text-white`}
-            >
-              {loading && progressInfo?.type === 'topic' 
-                ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                : 'Topic Analizi'}
-            </button>
-
-            <button
-              onClick={analyzeSentiment}
-              disabled={loading}
-              className={`px-4 py-2 rounded ${
-                loading
-                  ? 'bg-gray-400'
-                  : 'bg-purple-500 hover:bg-purple-600'
-              } text-white`}
-            >
-              {loading && progressInfo?.type === 'sentiment' 
-                ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                : 'Sentiment Analizi'}
-            </button>
-
-            <button
-              onClick={analyzeCluster}
-              disabled={loading}
-              className={`px-4 py-2 rounded ${
-                loading
-                  ? 'bg-gray-400'
-                  : 'bg-teal-500 hover:bg-teal-600'
-              } text-white`}
-            >
-              {loading && progressInfo?.type === 'cluster' 
-                ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                : 'Cluster Analizi'}
-            </button>
-          </div>
-
-          {progressInfo && progressInfo.percentage > 0 && (
-            <div className="w-full max-w-md">
-              <div className="mb-2 flex justify-between text-sm">
-                <span>
-                  {progressInfo.type === 'topic' ? 'Topic Analizi' : progressInfo.type === 'sentiment' ? 'Sentiment Analizi' : 'Cluster Analizi'}: 
-                  {' '}{progressInfo.current}/{progressInfo.total}
-                </span>
-                <span>{Math.round(progressInfo.percentage)}%</span>
+    <main className="container py-5">
+      <div className="row justify-content-center">
+        <div className="col-md-8">
+          <div className="card shadow">
+            <div className="card-body">
+              <h1 className="text-center mb-4">Excel Yükle ve Analiz Et</h1>
+              
+              <div className="mb-4">
+                <div className="input-group">
+                  <input
+                    type="file"
+                    accept=".xlsx"
+                    onChange={handleFileChange}
+                    className="form-control"
+                    id="excelFile"
+                  />
+                  <label className="input-group-text" htmlFor="excelFile">
+                    <i className="bi bi-file-earmark-excel"></i>
+                  </label>
+                </div>
+                
+                {fileName && (
+                  <div className="alert alert-success mt-2 mb-0">
+                    <i className="bi bi-check-circle-fill me-2"></i>
+                    Seçilen dosya: {fileName}
+                  </div>
+                )}
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2.5">
-                <div
-                  className={`h-2.5 rounded-full transition-all duration-300 ${
-                    progressInfo.type === 'topic' ? 'bg-green-600' : progressInfo.type === 'sentiment' ? 'bg-purple-600' : 'bg-teal-600'
-                  }`}
-                  style={{ width: `${progressInfo.percentage}%` }}
-                />
+
+              <div className="d-grid gap-3">
+                <button
+                  onClick={handleUpload}
+                  disabled={loading || !excelData.length}
+                  className={`btn btn-primary ${loading || !excelData.length ? 'disabled' : ''}`}
+                >
+                  <i className="bi bi-cloud-upload me-2"></i>
+                  {loading ? 'Yükleniyor...' : 'Supabase\'e Aktar'}
+                </button>
+
+                <div className="btn-group" role="group">
+                  <button
+                    onClick={analyzeTopics}
+                    disabled={loading}
+                    className={`btn btn-success ${loading ? 'disabled' : ''}`}
+                  >
+                    <i className="bi bi-tags me-2"></i>
+                    {loading && progressInfo?.type === 'topic' 
+                      ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
+                      : 'Topic Analizi'}
+                  </button>
+
+                  <button
+                    onClick={analyzeSentiment}
+                    disabled={loading}
+                    className={`btn btn-info ${loading ? 'disabled' : ''}`}
+                  >
+                    <i className="bi bi-emoji-smile me-2"></i>
+                    {loading && progressInfo?.type === 'sentiment' 
+                      ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
+                      : 'Sentiment Analizi'}
+                  </button>
+
+                  <button
+                    onClick={analyzeCluster}
+                    disabled={loading}
+                    className={`btn btn-warning ${loading ? 'disabled' : ''}`}
+                  >
+                    <i className="bi bi-diagram-3 me-2"></i>
+                    {loading && progressInfo?.type === 'cluster' 
+                      ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
+                      : 'Cluster Analizi'}
+                  </button>
+                </div>
               </div>
+
+              {progressInfo && progressInfo.percentage > 0 && (
+                <div className="mt-4">
+                  <div className="d-flex justify-content-between align-items-center mb-2">
+                    <span className="text-muted">
+                      <i className={`bi me-2 ${
+                        progressInfo.type === 'topic' ? 'bi-tags' : 
+                        progressInfo.type === 'sentiment' ? 'bi-emoji-smile' : 
+                        'bi-diagram-3'
+                      }`}></i>
+                      {progressInfo.type === 'topic' ? 'Topic Analizi' : 
+                       progressInfo.type === 'sentiment' ? 'Sentiment Analizi' : 
+                       'Cluster Analizi'}: {progressInfo.current}/{progressInfo.total}
+                    </span>
+                    <span className="text-muted">{Math.round(progressInfo.percentage)}%</span>
+                  </div>
+                  <div className="progress" style={{ height: '10px' }}>
+                    <div
+                      className={`progress-bar progress-bar-striped progress-bar-animated ${
+                        progressInfo.type === 'topic' ? 'bg-success' : 
+                        progressInfo.type === 'sentiment' ? 'bg-info' : 
+                        'bg-warning'
+                      }`}
+                      role="progressbar"
+                      style={{ width: `${progressInfo.percentage}%` }}
+                      aria-valuenow={progressInfo.percentage}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </main>
