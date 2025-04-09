@@ -491,7 +491,7 @@ export default function Home() {
                 <button
                   onClick={handleUpload}
                   disabled={loading || !excelData.length}
-                  className={`btn btn-outline-primary btn-sm ${loading || !excelData.length ? 'disabled' : ''}`}
+                  className={`btn btn-outline-secondary btn-sm w-auto align-self-end ${loading || !excelData.length ? 'disabled' : ''}`}
                 >
                   <i className="bi bi-cloud-upload me-2"></i>
                   {loading ? 'Yüklənir...' : 'Supabase\'ə Yüklə'}
@@ -501,7 +501,7 @@ export default function Home() {
                   <button
                     onClick={analyzeTopics}
                     disabled={loading}
-                    className={`btn btn-outline-success flex-grow-1 ${loading ? 'disabled' : ''}`}
+                    className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
                   >
                     <i className="bi bi-tags me-2"></i>
                     {loading && progressInfo?.type === 'topic' 
@@ -512,7 +512,7 @@ export default function Home() {
                   <button
                     onClick={analyzeSentiment}
                     disabled={loading}
-                    className={`btn btn-outline-info flex-grow-1 ${loading ? 'disabled' : ''}`}
+                    className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
                   >
                     <i className="bi bi-emoji-smile me-2"></i>
                     {loading && progressInfo?.type === 'sentiment' 
@@ -523,7 +523,7 @@ export default function Home() {
                   <button
                     onClick={analyzeCluster}
                     disabled={loading}
-                    className={`btn btn-outline-warning flex-grow-1 ${loading ? 'disabled' : ''}`}
+                    className={`btn btn-outline-secondary flex-grow-1 ${loading ? 'disabled' : ''}`}
                   >
                     <i className="bi bi-diagram-3 me-2"></i>
                     {loading && progressInfo?.type === 'cluster' 
@@ -538,9 +538,9 @@ export default function Home() {
                   <div className="d-flex justify-content-between align-items-center mb-2">
                     <span className="text-muted small">
                       <i className={`bi me-2 ${
-                        progressInfo.type === 'topic' ? 'bi-tags text-success' : 
-                        progressInfo.type === 'sentiment' ? 'bi-emoji-smile text-info' : 
-                        'bi-diagram-3 text-warning'
+                        progressInfo.type === 'topic' ? 'bi-tags' : 
+                        progressInfo.type === 'sentiment' ? 'bi-emoji-smile' : 
+                        'bi-diagram-3'
                       }`}></i>
                       {progressInfo.type === 'topic' ? 'Mövzu Analizi' : 
                        progressInfo.type === 'sentiment' ? 'Emosional Analiz' : 
@@ -550,11 +550,7 @@ export default function Home() {
                   </div>
                   <div className="progress" style={{ height: '8px' }}>
                     <div
-                      className={`progress-bar progress-bar-striped progress-bar-animated ${
-                        progressInfo.type === 'topic' ? 'bg-success' : 
-                        progressInfo.type === 'sentiment' ? 'bg-info' : 
-                        'bg-warning'
-                      }`}
+                      className="progress-bar progress-bar-striped progress-bar-animated"
                       role="progressbar"
                       style={{ width: `${progressInfo.percentage}%` }}
                       aria-valuenow={progressInfo.percentage}
