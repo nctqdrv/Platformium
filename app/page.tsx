@@ -462,7 +462,7 @@ export default function Home() {
         <div className="col-md-8">
           <div className="card shadow">
             <div className="card-body">
-              <h1 className="text-center mb-4">Excel Yükle ve Analiz Et</h1>
+              <h1 className="text-center mb-4">Excel Faylını Yüklə və Analiz Et</h1>
               
               <div className="mb-4">
                 <div className="input-group">
@@ -481,7 +481,7 @@ export default function Home() {
                 {fileName && (
                   <div className="alert alert-success mt-2 mb-0">
                     <i className="bi bi-check-circle-fill me-2"></i>
-                    Seçilen dosya: {fileName}
+                    Seçilmiş fayl: {fileName}
                   </div>
                 )}
               </div>
@@ -493,7 +493,7 @@ export default function Home() {
                   className={`btn btn-primary ${loading || !excelData.length ? 'disabled' : ''}`}
                 >
                   <i className="bi bi-cloud-upload me-2"></i>
-                  {loading ? 'Yükleniyor...' : 'Supabase\'e Aktar'}
+                  {loading ? 'Yüklənir...' : 'Supabase\'ə Yüklə'}
                 </button>
 
                 <div className="btn-group" role="group">
@@ -505,7 +505,7 @@ export default function Home() {
                     <i className="bi bi-tags me-2"></i>
                     {loading && progressInfo?.type === 'topic' 
                       ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                      : 'Topic Analizi'}
+                      : 'Mövzu Analizi'}
                   </button>
 
                   <button
@@ -516,7 +516,7 @@ export default function Home() {
                     <i className="bi bi-emoji-smile me-2"></i>
                     {loading && progressInfo?.type === 'sentiment' 
                       ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                      : 'Sentiment Analizi'}
+                      : 'Emosional Analiz'}
                   </button>
 
                   <button
@@ -527,7 +527,7 @@ export default function Home() {
                     <i className="bi bi-diagram-3 me-2"></i>
                     {loading && progressInfo?.type === 'cluster' 
                       ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
-                      : 'Cluster Analizi'}
+                      : 'Klaster Analizi'}
                   </button>
                 </div>
               </div>
@@ -541,9 +541,9 @@ export default function Home() {
                         progressInfo.type === 'sentiment' ? 'bi-emoji-smile' : 
                         'bi-diagram-3'
                       }`}></i>
-                      {progressInfo.type === 'topic' ? 'Topic Analizi' : 
-                       progressInfo.type === 'sentiment' ? 'Sentiment Analizi' : 
-                       'Cluster Analizi'}: {progressInfo.current}/{progressInfo.total}
+                      {progressInfo.type === 'topic' ? 'Mövzu Analizi' : 
+                       progressInfo.type === 'sentiment' ? 'Emosional Analiz' : 
+                       'Klaster Analizi'}: {progressInfo.current}/{progressInfo.total}
                     </span>
                     <span className="text-muted">{Math.round(progressInfo.percentage)}%</span>
                   </div>
