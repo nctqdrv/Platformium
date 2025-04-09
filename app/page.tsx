@@ -460,9 +460,9 @@ export default function Home() {
     <main className="container py-5">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <div className="card shadow">
-            <div className="card-body">
-              <h1 className="text-center mb-4">Excel Faylını Yüklə və Analiz Et</h1>
+          <div className="card shadow-sm border-0">
+            <div className="card-body p-4">
+              <h1 className="text-center mb-4 text-primary">Excel Faylını Yüklə və Analiz Et</h1>
               
               <div className="mb-4">
                 <div className="input-group">
@@ -472,35 +472,36 @@ export default function Home() {
                     onChange={handleFileChange}
                     className="form-control"
                     id="excelFile"
+                    placeholder="Fayl seçin..."
                   />
-                  <label className="input-group-text" htmlFor="excelFile">
-                    <i className="bi bi-file-earmark-excel"></i>
+                  <label className="input-group-text bg-light border-0" htmlFor="excelFile">
+                    <i className="bi bi-file-earmark-excel text-primary"></i>
                   </label>
                 </div>
                 
                 {fileName && (
-                  <div className="alert alert-success mt-2 mb-0">
+                  <div className="alert alert-success mt-2 mb-0 border-0">
                     <i className="bi bi-check-circle-fill me-2"></i>
                     Seçilmiş fayl: {fileName}
                   </div>
                 )}
               </div>
 
-              <div className="d-grid gap-3">
+              <div className="d-flex flex-column gap-3">
                 <button
                   onClick={handleUpload}
                   disabled={loading || !excelData.length}
-                  className={`btn btn-primary ${loading || !excelData.length ? 'disabled' : ''}`}
+                  className={`btn btn-outline-primary btn-sm ${loading || !excelData.length ? 'disabled' : ''}`}
                 >
                   <i className="bi bi-cloud-upload me-2"></i>
                   {loading ? 'Yüklənir...' : 'Supabase\'ə Yüklə'}
                 </button>
 
-                <div className="btn-group" role="group">
+                <div className="d-flex justify-content-between gap-2">
                   <button
                     onClick={analyzeTopics}
                     disabled={loading}
-                    className={`btn btn-success ${loading ? 'disabled' : ''}`}
+                    className={`btn btn-outline-success flex-grow-1 ${loading ? 'disabled' : ''}`}
                   >
                     <i className="bi bi-tags me-2"></i>
                     {loading && progressInfo?.type === 'topic' 
@@ -511,7 +512,7 @@ export default function Home() {
                   <button
                     onClick={analyzeSentiment}
                     disabled={loading}
-                    className={`btn btn-info ${loading ? 'disabled' : ''}`}
+                    className={`btn btn-outline-info flex-grow-1 ${loading ? 'disabled' : ''}`}
                   >
                     <i className="bi bi-emoji-smile me-2"></i>
                     {loading && progressInfo?.type === 'sentiment' 
@@ -522,7 +523,7 @@ export default function Home() {
                   <button
                     onClick={analyzeCluster}
                     disabled={loading}
-                    className={`btn btn-warning ${loading ? 'disabled' : ''}`}
+                    className={`btn btn-outline-warning flex-grow-1 ${loading ? 'disabled' : ''}`}
                   >
                     <i className="bi bi-diagram-3 me-2"></i>
                     {loading && progressInfo?.type === 'cluster' 
@@ -535,19 +536,19 @@ export default function Home() {
               {progressInfo && progressInfo.percentage > 0 && (
                 <div className="mt-4">
                   <div className="d-flex justify-content-between align-items-center mb-2">
-                    <span className="text-muted">
+                    <span className="text-muted small">
                       <i className={`bi me-2 ${
-                        progressInfo.type === 'topic' ? 'bi-tags' : 
-                        progressInfo.type === 'sentiment' ? 'bi-emoji-smile' : 
-                        'bi-diagram-3'
+                        progressInfo.type === 'topic' ? 'bi-tags text-success' : 
+                        progressInfo.type === 'sentiment' ? 'bi-emoji-smile text-info' : 
+                        'bi-diagram-3 text-warning'
                       }`}></i>
                       {progressInfo.type === 'topic' ? 'Mövzu Analizi' : 
                        progressInfo.type === 'sentiment' ? 'Emosional Analiz' : 
                        'Klaster Analizi'}: {progressInfo.current}/{progressInfo.total}
                     </span>
-                    <span className="text-muted">{Math.round(progressInfo.percentage)}%</span>
+                    <span className="text-muted small">{Math.round(progressInfo.percentage)}%</span>
                   </div>
-                  <div className="progress" style={{ height: '10px' }}>
+                  <div className="progress" style={{ height: '8px' }}>
                     <div
                       className={`progress-bar progress-bar-striped progress-bar-animated ${
                         progressInfo.type === 'topic' ? 'bg-success' : 
