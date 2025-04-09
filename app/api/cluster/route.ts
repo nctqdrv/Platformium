@@ -49,7 +49,7 @@ Mətn: ${content}`
       ]
     });
 
-    const cluster = response.content[0].text.trim();
+    const cluster = response.content[0].type === 'text' ? response.content[0].text.trim() : '';
     return NextResponse.json({ cluster });
   } catch (error) {
     console.error('Cluster analizi sırasında hata oluştu:', error);
