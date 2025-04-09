@@ -56,26 +56,11 @@ export default function Home() {
       setLoading(true);
       console.log('Excel verisi:', excelData);
       
-      // Önce tablonun varlığını kontrol et
-      const { data: tableExists, error: checkError } = await supabase
-        .from('documents')
-        .select('id')
-        .limit(1);
-
-      if (checkError) {
-        console.error('Tablo kontrol hatası:', checkError);
-        // Tablo yoksa oluştur
-        const { error: createError } = await supabase.rpc('create_documents_table');
-        if (createError) {
-          console.error('Tablo oluşturma hatası:', createError);
-          throw createError;
-        }
-      }
-
       const dataToInsert = excelData.map((row: any) => {
         // Tarih ve saat değerlerini güvenli bir şekilde işle
         let formattedDate = null;
         let formattedTime = null;
+        let formattedSavedAt = null;
 
         if (row.Date) {
           try {
@@ -100,52 +85,75 @@ export default function Home() {
             console.warn('Geçersiz saat formatı:', row.Time);
           }
         }
+
+        if (row["Saved at"]) {
+          try {
+            // Excel'den gelen kaydedilme tarihini parse et
+            const excelSavedAt = new Date(row["Saved at"]);
+            if (!isNaN(excelSavedAt.getTime())) {
+              formattedSavedAt = excelSavedAt.toISOString();
+            }
+          } catch (e) {
+            console.warn('Geçersiz kaydedilme tarihi formatı:', row["Saved at"]);
+          }
+        }
         
         const processedRow = {
           date: formattedDate,
           time: formattedTime,
+          saved_at: formattedSavedAt,
           title: row.Title || null,
           text: row.Text || null,
+          post_type: row["Post type"] || null,
+          content_types: row["Content Types"] || null,
+          source_specific_format: row["Source specific format"] ? parseFloat(row["Source specific format"]) : null,
+          url: row.URL || null,
           sentiment: row.Sentiment || null,
-          likes: row.Likes ? Number(row.Likes) : 0,
-          comments: row.Comments ? Number(row.Comments) : 0,
-          shares: row.Shares ? Number(row.Shares) : 0,
-          views: row.Views ? Number(row.Views) : 0,
-          engagement_rate: row.EngagementRate ? Number(row.EngagementRate) : 0,
-          reach: row.Reach ? Number(row.Reach) : 0,
-          impressions: row.Impressions ? Number(row.Impressions) : 0,
-          click_through_rate: row.ClickThroughRate ? Number(row.ClickThroughRate) : 0,
-          link_clicks: row.LinkClicks ? Number(row.LinkClicks) : 0,
-          profile_visits: row.ProfileVisits ? Number(row.ProfileVisits) : 0,
-          hashtag_count: row.HashtagCount ? Number(row.HashtagCount) : 0,
-          mention_count: row.MentionCount ? Number(row.MentionCount) : 0,
-          media_type: row.MediaType || null,
-          platform: row.Platform || null,
+          topic: row.Topic || null,
+          cluster: row.Cluster || null,
+          author: row.Author || null,
+          nickname: row.Nickname || null,
+          profile: row.Profile || null,
+          subscribers: row.Subscribers ? parseFloat(row.Subscribers) : null,
+          demography: row.Demography || null,
+          age: row.Age ? parseFloat(row.Age) : null,
+          source: row.Source || null,
+          publication_place: row["Publication place"] || null,
+          publication_place_profile: row["Publication place profile"] || null,
+          publication_place_subscribers: row["Publication place subscribers"] ? parseFloat(row["Publication place subscribers"]) : null,
+          resource_type: row["Resource type"] || null,
           language: row.Language || null,
-          location: row.Location || null,
-          device_type: row.DeviceType || null,
-          post_type: row.PostType || null,
-          campaign_name: row.CampaignName || null,
-          ad_spend: row.AdSpend ? Number(row.AdSpend) : 0,
-          target_audience: row.TargetAudience || null,
-          hashtags: row.Hashtags || null,
-          mentions: row.Mentions || null,
-          links: row.Links || null,
-          topics: row.Topics || null,
-          sentiment_score: row.SentimentScore ? Number(row.SentimentScore) : 0,
-          sentiment_magnitude: row.SentimentMagnitude ? Number(row.SentimentMagnitude) : 0,
-          cluster_id: row.ClusterId ? Number(row.ClusterId) : null,
-          cluster_name: row.ClusterName || null,
-          cluster_description: row.ClusterDescription || null,
-          cluster_size: row.ClusterSize ? Number(row.ClusterSize) : 0,
-          cluster_silhouette_score: row.ClusterSilhouetteScore ? Number(row.ClusterSilhouetteScore) : 0,
-          cluster_centroid: row.ClusterCentroid || null,
-          cluster_keywords: row.ClusterKeywords || null,
-          cluster_sentiment: row.ClusterSentiment || null,
-          cluster_engagement: row.ClusterEngagement ? Number(row.ClusterEngagement) : 0,
-          cluster_trend: row.ClusterTrend || null,
-          cluster_insights: row.ClusterInsights || null,
-          cluster_recommendations: row.ClusterRecommendations || null
+          country: row.Country || null,
+          regions: row.Regions || null,
+          city: row.City || null,
+          notes: row.Notes ? parseFloat(row.Notes) : null,
+          reactions: row.Reactions ? parseFloat(row.Reactions) : null,
+          engagement: row.Engagement ? parseFloat(row.Engagement) : null,
+          likes: row.Likes ? parseFloat(row.Likes) : null,
+          love: row.Love ? parseFloat(row.Love) : null,
+          haha: row.Haha ? parseFloat(row.Haha) : null,
+          wow: row.Wow ? parseFloat(row.Wow) : null,
+          sad: row.Sad ? parseFloat(row.Sad) : null,
+          angry: row.Angry ? parseFloat(row.Angry) : null,
+          care: row.Care ? parseFloat(row.Care) : null,
+          dislikes: row.Dislikes ? parseFloat(row.Dislikes) : null,
+          comments: row.Comments ? parseFloat(row.Comments) : null,
+          reposts: row.Reposts ? parseFloat(row.Reposts) : null,
+          views: row.Views ? parseFloat(row.Views) : null,
+          impressions_owned_posts: row["Impressions (owned posts)"] ? parseFloat(row["Impressions (owned posts)"]) : null,
+          reach_owned_posts: row["Reach (owned posts)"] ? parseFloat(row["Reach (owned posts)"]) : null,
+          saves: row.Saves ? parseFloat(row.Saves) : null,
+          potential_reach: row["Potential reach"] ? parseFloat(row["Potential reach"]) : null,
+          rating: row.Rating ? parseFloat(row.Rating) : null,
+          image_url: row["Image URL"] || null,
+          assigned_to: row["Assigned to"] ? parseFloat(row["Assigned to"]) : null,
+          processed: row.Processed || null,
+          aspects: row.Aspects ? parseFloat(row.Aspects) : null,
+          subjects: row.Subjects || null,
+          auto_categories: row["Auto-categories"] ? parseFloat(row["Auto-categories"]) : null,
+          trend: row.Trend ? parseFloat(row.Trend) : null,
+          tags: row.Tags ? parseFloat(row.Tags) : null,
+          test: row.test ? parseFloat(row.test) : null
         };
 
         console.log('İşlenmiş satır:', processedRow);
