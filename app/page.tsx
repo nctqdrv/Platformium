@@ -14,19 +14,14 @@ type ProgressInfo = {
   current: number;
   total: number;
   percentage: number;
-  type: 'topic' | 'sentiment' | 'cluster' | null;
-};
+  type: 'topic' | 'sentiment' | 'cluster';
+} | null;
 
 export default function Home() {
   const [loading, setLoading] = useState(false)
   const [excelData, setExcelData] = useState<any[]>([])
   const [fileName, setFileName] = useState<string>('')
-  const [progressInfo, setProgressInfo] = useState<ProgressInfo>({
-    current: 0,
-    total: 0,
-    percentage: 0,
-    type: null
-  });
+  const [progressInfo, setProgressInfo] = useState<ProgressInfo>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -250,12 +245,7 @@ export default function Home() {
       alert('Topic analizi sırasında bir hata oluştu!');
     } finally {
       setLoading(false);
-      setProgressInfo({
-        current: 0,
-        total: 0,
-        percentage: 0,
-        type: null
-      });
+      setProgressInfo(null);
     }
   };
 
@@ -342,12 +332,7 @@ export default function Home() {
       alert('Sentiment analizi sırasında bir hata oluştu!');
     } finally {
       setLoading(false);
-      setProgressInfo({
-        current: 0,
-        total: 0,
-        percentage: 0,
-        type: null
-      });
+      setProgressInfo(null);
     }
   };
 
@@ -466,7 +451,7 @@ export default function Home() {
                   : 'bg-green-500 hover:bg-green-600'
               } text-white`}
             >
-              {loading && progressInfo.type === 'topic' 
+              {loading && progressInfo?.type === 'topic' 
                 ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
                 : 'Topic Analizi'}
             </button>
@@ -480,7 +465,7 @@ export default function Home() {
                   : 'bg-purple-500 hover:bg-purple-600'
               } text-white`}
             >
-              {loading && progressInfo.type === 'sentiment' 
+              {loading && progressInfo?.type === 'sentiment' 
                 ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
                 : 'Sentiment Analizi'}
             </button>
@@ -494,13 +479,13 @@ export default function Home() {
                   : 'bg-teal-500 hover:bg-teal-600'
               } text-white`}
             >
-              {loading && progressInfo.type === 'cluster' 
+              {loading && progressInfo?.type === 'cluster' 
                 ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
                 : 'Cluster Analizi'}
             </button>
           </div>
 
-          {progressInfo.percentage > 0 && (
+          {progressInfo && progressInfo.percentage > 0 && (
             <div className="w-full max-w-md">
               <div className="mb-2 flex justify-between text-sm">
                 <span>
