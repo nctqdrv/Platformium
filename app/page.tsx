@@ -404,22 +404,30 @@ export default function Home() {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ content: contentToAnalyze }),
+            cache: 'no-store'
           });
 
           if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json();
+            throw new Error(`API Error: ${response.status} - ${errorData.error || 'Unknown error'}`);
           }
 
-          const result = await response.json();
-          console.log('Cluster analizi sonucu:', result);
+          const data = await response.json();
+          console.log('Cluster API Yanıtı:', data);
+
+          if (!data.content) {
+            throw new Error('API yanıtında content bulunamadı');
+          }
+
+          const cluster = data.content;
+          console.log('Belirlenen Cluster:', cluster);
 
           const { error: updateError } = await supabase
             .from('documents')
-            .update({ cluster: result.cluster })
+            .update({ cluster: cluster })
             .eq('id', doc.id);
 
           if (updateError) {
-            console.error('Supabase güncelleme hatası:', updateError);
             throw updateError;
           }
 
@@ -430,14 +438,17 @@ export default function Home() {
             percentage: (analyzedCount / documents.length) * 100,
             type: 'cluster'
           }));
+
         } catch (error) {
-          console.error(`Döküman ${i + 1} analiz edilirken hata oluştu:`, error);
+          console.error(`Döküman cluster analizi hatası (ID: ${doc.id}):`, error);
+          continue;
         }
       }
+      
+      alert(`Cluster analizi tamamlandı! ${analyzedCount} kayıt güncellendi.`);
 
-      alert('Cluster analizi tamamlandı!');
     } catch (error) {
-      console.error('Cluster analizi sırasında hata oluştu:', error);
+      console.error('Genel hata:', error);
       alert('Cluster analizi sırasında bir hata oluştu!');
     } finally {
       setLoading(false);
