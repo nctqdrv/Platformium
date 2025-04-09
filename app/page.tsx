@@ -464,7 +464,7 @@ export default function Home() {
             <div className="card-body p-4">
               <div className="d-flex align-items-center mb-4">
                 <img 
-                  src="/platformium-logo.png" 
+                  src="/platformium_logo.png" 
                   alt="Platformium AI" 
                   className="me-3"
                   style={{ height: '32px' }}
