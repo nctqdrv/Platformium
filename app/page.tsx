@@ -55,13 +55,37 @@ export default function Home() {
     try {
       setLoading(true);
       const dataToInsert = excelData.map((row: any) => {
-        // Tarih ve saat değerlerini kontrol et ve dönüştür
-        const date = row.Date ? new Date(row.Date) : null;
-        const time = row.Time ? new Date(row.Time) : null;
+        // Tarih ve saat değerlerini güvenli bir şekilde işle
+        let formattedDate = null;
+        let formattedTime = null;
+
+        if (row.Date) {
+          try {
+            // Excel'den gelen tarihi parse et
+            const excelDate = new Date(row.Date);
+            if (!isNaN(excelDate.getTime())) {
+              formattedDate = excelDate.toISOString().split('T')[0];
+            }
+          } catch (e) {
+            console.warn('Geçersiz tarih formatı:', row.Date);
+          }
+        }
+
+        if (row.Time) {
+          try {
+            // Excel'den gelen saati parse et
+            const excelTime = new Date(row.Time);
+            if (!isNaN(excelTime.getTime())) {
+              formattedTime = excelTime.toISOString().split('T')[1].split('.')[0];
+            }
+          } catch (e) {
+            console.warn('Geçersiz saat formatı:', row.Time);
+          }
+        }
         
         return {
-          date: date ? date.toISOString().split('T')[0] : null,
-          time: time ? time.toISOString().split('T')[1].split('.')[0] : null,
+          date: formattedDate,
+          time: formattedTime,
           title: row.Title || null,
           text: row.Text || null,
           sentiment: row.Sentiment || null,
