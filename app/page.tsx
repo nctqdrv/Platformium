@@ -56,6 +56,22 @@ export default function Home() {
       setLoading(true);
       console.log('Excel verisi:', excelData);
       
+      // Önce tablonun varlığını kontrol et
+      const { data: tableExists, error: checkError } = await supabase
+        .from('documents')
+        .select('id')
+        .limit(1);
+
+      if (checkError) {
+        console.error('Tablo kontrol hatası:', checkError);
+        // Tablo yoksa oluştur
+        const { error: createError } = await supabase.rpc('create_documents_table');
+        if (createError) {
+          console.error('Tablo oluşturma hatası:', createError);
+          throw createError;
+        }
+      }
+
       const dataToInsert = excelData.map((row: any) => {
         // Tarih ve saat değerlerini güvenli bir şekilde işle
         let formattedDate = null;
@@ -138,19 +154,25 @@ export default function Home() {
 
       console.log('Supabase\'e gönderilecek veri:', dataToInsert);
       
-      const { data, error } = await supabase
-        .from('social_media_posts')
-        .insert(dataToInsert)
-        .select();
+      // Verileri küçük gruplar halinde gönder
+      const batchSize = 100;
+      for (let i = 0; i < dataToInsert.length; i += batchSize) {
+        const batch = dataToInsert.slice(i, i + batchSize);
+        const { data, error } = await supabase
+          .from('documents')
+          .insert(batch)
+          .select();
 
-      if (error) {
-        console.error('Supabase hatası:', error);
-        console.error('Hata detayları:', error.details);
-        console.error('Hata kodu:', error.code);
-        throw error;
+        if (error) {
+          console.error('Supabase hatası:', error);
+          console.error('Hata detayları:', error.details);
+          console.error('Hata kodu:', error.code);
+          throw error;
+        }
+
+        console.log(`Batch ${i / batchSize + 1} yüklendi:`, data);
       }
 
-      console.log('Supabase yanıtı:', data);
       alert('Veriler başarıyla yüklendi!');
     } catch (error) {
       console.error('Veri yükleme hatası:', error);
