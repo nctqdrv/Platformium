@@ -54,6 +54,8 @@ export default function Home() {
 
     try {
       setLoading(true);
+      console.log('Excel verisi:', excelData);
+      
       const dataToInsert = excelData.map((row: any) => {
         // Tarih ve saat değerlerini güvenli bir şekilde işle
         let formattedDate = null;
@@ -83,7 +85,7 @@ export default function Home() {
           }
         }
         
-        return {
+        const processedRow = {
           date: formattedDate,
           time: formattedTime,
           title: row.Title || null,
@@ -129,17 +131,32 @@ export default function Home() {
           cluster_insights: row.ClusterInsights || null,
           cluster_recommendations: row.ClusterRecommendations || null
         };
+
+        console.log('İşlenmiş satır:', processedRow);
+        return processedRow;
       });
 
-      const { error } = await supabase
+      console.log('Supabase\'e gönderilecek veri:', dataToInsert);
+      
+      const { data, error } = await supabase
         .from('social_media_posts')
-        .insert(dataToInsert);
+        .insert(dataToInsert)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase hatası:', error);
+        console.error('Hata detayları:', error.details);
+        console.error('Hata kodu:', error.code);
+        throw error;
+      }
+
+      console.log('Supabase yanıtı:', data);
       alert('Veriler başarıyla yüklendi!');
     } catch (error) {
       console.error('Veri yükleme hatası:', error);
-      alert('Veri yükleme sırasında bir hata oluştu!');
+      console.error('Hata tipi:', typeof error);
+      console.error('Hata mesajı:', error instanceof Error ? error.message : 'Bilinmeyen hata');
+      alert('Veri yükleme sırasında bir hata oluştu! Lütfen konsolu kontrol edin.');
     } finally {
       setLoading(false);
     }
