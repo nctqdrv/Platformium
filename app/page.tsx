@@ -14,7 +14,7 @@ type ProgressInfo = {
   current: number;
   total: number;
   percentage: number;
-  type: 'topic' | 'sentiment' | null;
+  type: 'topic' | 'sentiment' | 'cluster' | null;
 };
 
 export default function Home() {
@@ -172,40 +172,30 @@ export default function Home() {
       setLoading(true);
       const { data: documents } = await supabase
         .from('documents')
-        .select('*');
+        .select('id, title, text');
 
       if (!documents?.length) {
         alert('Analiz edilecek döküman bulunamadı!');
         return;
       }
 
-      // JavaScript tarafında filtreleme
-      const documentsToAnalyze = documents.filter(doc => 
-        doc.topic === null || doc.topic === ''
-      );
-
-      if (!documentsToAnalyze.length) {
-        alert('Analiz edilecek döküman bulunamadı!');
-        return;
-      }
-
       setProgressInfo({
         current: 0,
-        total: documentsToAnalyze.length,
+        total: documents.length,
         percentage: 0,
         type: 'topic'
       });
 
       let analyzedCount = 0;
-      for (let i = 0; i < documentsToAnalyze.length; i++) {
-        const doc = documentsToAnalyze[i];
+      for (let i = 0; i < documents.length; i++) {
+        const doc = documents[i];
         
         const contentToAnalyze = doc.title 
           ? `Ana Post: ${doc.title}\nYorum: ${doc.text || ''}`
           : `Ana Post: ${doc.text}`;
 
         try {
-          console.log(`Döküman ${i + 1}/${documentsToAnalyze.length} topic analizi yapılıyor:`, contentToAnalyze);
+          console.log(`Döküman ${i + 1}/${documents.length} topic analizi yapılıyor:`, contentToAnalyze);
 
           const response = await fetch('/api/topic', {
             method: 'POST',
@@ -244,7 +234,7 @@ export default function Home() {
           setProgressInfo(prev => ({
             ...prev,
             current: analyzedCount,
-            percentage: (analyzedCount / documentsToAnalyze.length) * 100
+            percentage: (analyzedCount / documents.length) * 100
           }));
 
         } catch (error) {
@@ -274,40 +264,30 @@ export default function Home() {
       setLoading(true);
       const { data: documents } = await supabase
         .from('documents')
-        .select('*');
+        .select('id, title, text');
 
       if (!documents?.length) {
         alert('Analiz edilecek döküman bulunamadı!');
         return;
       }
 
-      // JavaScript tarafında filtreleme
-      const documentsToAnalyze = documents.filter(doc => 
-        doc.sentiment === null || doc.sentiment === ''
-      );
-
-      if (!documentsToAnalyze.length) {
-        alert('Analiz edilecek döküman bulunamadı!');
-        return;
-      }
-
       setProgressInfo({
         current: 0,
-        total: documentsToAnalyze.length,
+        total: documents.length,
         percentage: 0,
         type: 'sentiment'
       });
 
       let analyzedCount = 0;
-      for (let i = 0; i < documentsToAnalyze.length; i++) {
-        const doc = documentsToAnalyze[i];
+      for (let i = 0; i < documents.length; i++) {
+        const doc = documents[i];
         
         const contentToAnalyze = doc.title 
           ? `Ana Post: ${doc.title}\nYorum: ${doc.text || ''}`
           : `Ana Post: ${doc.text}`;
 
         try {
-          console.log(`Döküman ${i + 1}/${documentsToAnalyze.length} sentiment analizi yapılıyor:`, contentToAnalyze);
+          console.log(`Döküman ${i + 1}/${documents.length} sentiment analizi yapılıyor:`, contentToAnalyze);
 
           const response = await fetch('/api/sentiment', {
             method: 'POST',
@@ -346,7 +326,7 @@ export default function Home() {
           setProgressInfo(prev => ({
             ...prev,
             current: analyzedCount,
-            percentage: (analyzedCount / documentsToAnalyze.length) * 100
+            percentage: (analyzedCount / documents.length) * 100
           }));
 
         } catch (error) {
@@ -368,6 +348,82 @@ export default function Home() {
         percentage: 0,
         type: null
       });
+    }
+  };
+
+  const analyzeCluster = async () => {
+    try {
+      setLoading(true);
+      const { data: documents } = await supabase
+        .from('documents')
+        .select('id, title, text');
+
+      if (!documents?.length) {
+        alert('Analiz edilecek döküman bulunamadı!');
+        return;
+      }
+
+      setProgressInfo({
+        current: 0,
+        total: documents.length,
+        percentage: 0,
+        type: 'cluster'
+      });
+
+      let analyzedCount = 0;
+      for (let i = 0; i < documents.length; i++) {
+        const doc = documents[i];
+        
+        const contentToAnalyze = doc.title 
+          ? `Ana Post: ${doc.title}\nYorum: ${doc.text || ''}`
+          : `Ana Post: ${doc.text}`;
+
+        try {
+          console.log(`Döküman ${i + 1}/${documents.length} cluster analizi yapılıyor:`, contentToAnalyze);
+
+          const response = await fetch('/api/cluster', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ content: contentToAnalyze }),
+          });
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const result = await response.json();
+          console.log('Cluster analizi sonucu:', result);
+
+          const { error: updateError } = await supabase
+            .from('documents')
+            .update({ cluster: result.cluster })
+            .eq('id', doc.id);
+
+          if (updateError) {
+            console.error('Supabase güncelleme hatası:', updateError);
+            throw updateError;
+          }
+
+          analyzedCount++;
+          setProgressInfo(prev => ({
+            ...prev,
+            current: analyzedCount,
+            percentage: (analyzedCount / documents.length) * 100
+          }));
+        } catch (error) {
+          console.error(`Döküman ${i + 1} analiz edilirken hata oluştu:`, error);
+        }
+      }
+
+      alert('Cluster analizi tamamlandı!');
+    } catch (error) {
+      console.error('Cluster analizi sırasında hata oluştu:', error);
+      alert('Cluster analizi sırasında bir hata oluştu!');
+    } finally {
+      setLoading(false);
+      setProgressInfo(null);
     }
   };
 
@@ -428,13 +484,27 @@ export default function Home() {
                 ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
                 : 'Sentiment Analizi'}
             </button>
+
+            <button
+              onClick={analyzeCluster}
+              disabled={loading}
+              className={`px-4 py-2 rounded ${
+                loading
+                  ? 'bg-gray-400'
+                  : 'bg-teal-500 hover:bg-teal-600'
+              } text-white`}
+            >
+              {loading && progressInfo.type === 'cluster' 
+                ? `Analiz: ${progressInfo.current}/${progressInfo.total}` 
+                : 'Cluster Analizi'}
+            </button>
           </div>
 
           {progressInfo.percentage > 0 && (
             <div className="w-full max-w-md">
               <div className="mb-2 flex justify-between text-sm">
                 <span>
-                  {progressInfo.type === 'topic' ? 'Topic Analizi' : 'Sentiment Analizi'}: 
+                  {progressInfo.type === 'topic' ? 'Topic Analizi' : progressInfo.type === 'sentiment' ? 'Sentiment Analizi' : 'Cluster Analizi'}: 
                   {' '}{progressInfo.current}/{progressInfo.total}
                 </span>
                 <span>{Math.round(progressInfo.percentage)}%</span>
@@ -442,7 +512,7 @@ export default function Home() {
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div
                   className={`h-2.5 rounded-full transition-all duration-300 ${
-                    progressInfo.type === 'topic' ? 'bg-green-600' : 'bg-purple-600'
+                    progressInfo.type === 'topic' ? 'bg-green-600' : progressInfo.type === 'sentiment' ? 'bg-purple-600' : 'bg-teal-600'
                   }`}
                   style={{ width: `${progressInfo.percentage}%` }}
                 />
