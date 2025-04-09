@@ -227,9 +227,10 @@ export default function Home() {
 
           analyzedCount++;
           setProgressInfo(prev => ({
-            ...prev,
             current: analyzedCount,
-            percentage: (analyzedCount / documents.length) * 100
+            total: documents.length,
+            percentage: (analyzedCount / documents.length) * 100,
+            type: 'topic'
           }));
 
         } catch (error) {
@@ -314,9 +315,10 @@ export default function Home() {
 
           analyzedCount++;
           setProgressInfo(prev => ({
-            ...prev,
             current: analyzedCount,
-            percentage: (analyzedCount / documents.length) * 100
+            total: documents.length,
+            percentage: (analyzedCount / documents.length) * 100,
+            type: 'sentiment'
           }));
 
         } catch (error) {
@@ -393,9 +395,10 @@ export default function Home() {
 
           analyzedCount++;
           setProgressInfo(prev => ({
-            ...prev,
             current: analyzedCount,
-            percentage: (analyzedCount / documents.length) * 100
+            total: documents.length,
+            percentage: (analyzedCount / documents.length) * 100,
+            type: 'cluster'
           }));
         } catch (error) {
           console.error(`Döküman ${i + 1} analiz edilirken hata oluştu:`, error);
