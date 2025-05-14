@@ -9,6 +9,31 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
 )
 
+// Excel tarih/saat verilerini güvenli şekilde parse eden yardımcı fonksiyon
+function parseExcelDate(value: any) {
+  if (typeof value === 'number') {
+    // Excel serial date
+    const excelEpoch = new Date(Date.UTC(1899, 11, 30));
+    const days = Math.floor(value);
+    const ms = (value - days) * 24 * 60 * 60 * 1000;
+    return new Date(excelEpoch.getTime() + days * 24 * 60 * 60 * 1000 + ms);
+  }
+  if (typeof value === 'string') {
+    // String tarih, ör: "01.02.2024 13:45"
+    const [datePart, timePart] = value.split(' ');
+    if (datePart && datePart.includes('.')) {
+      const [day, month, year] = datePart.split('.');
+      if (year && month && day) {
+        return new Date(`${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}T${timePart ? timePart : '00:00'}:00`);
+      }
+    }
+    // ISO veya diğer formatlar için fallback
+    const d = new Date(value);
+    if (!isNaN(d.getTime())) return d;
+  }
+  return null;
+}
+
 // Progress type tanımı ekleyelim
 type ProgressInfo = {
   current: number;
@@ -57,51 +82,11 @@ export default function Home() {
       console.log('Excel verisi:', excelData);
       
       const dataToInsert = excelData.map((row: any) => {
-        // Tarih ve saat değerlerini güvenli bir şekilde işle
-        let formattedDate = null;
-        let formattedTime = null;
-        let formattedSavedAt = null;
-
-        if (row.Date) {
-          try {
-            // Excel'den gelen tarihi parse et
-            const excelDate = new Date(row.Date);
-            if (!isNaN(excelDate.getTime())) {
-              formattedDate = excelDate.toISOString().split('T')[0];
-            }
-          } catch (e) {
-            console.warn('Geçersiz tarih formatı:', row.Date);
-          }
-        }
-
-        if (row.Time) {
-          try {
-            // Excel'den gelen saati parse et
-            const excelTime = new Date(row.Time);
-            if (!isNaN(excelTime.getTime())) {
-              formattedTime = excelTime.toISOString().split('T')[1].split('.')[0];
-            }
-          } catch (e) {
-            console.warn('Geçersiz saat formatı:', row.Time);
-          }
-        }
-
-        if (row["Saved at"]) {
-          try {
-            // Excel'den gelen kaydedilme tarihini parse et
-            const excelSavedAt = new Date(row["Saved at"]);
-            if (!isNaN(excelSavedAt.getTime())) {
-              formattedSavedAt = excelSavedAt.toISOString();
-            }
-          } catch (e) {
-            console.warn('Geçersiz kaydedilme tarihi formatı:', row["Saved at"]);
-          }
-        }
-        
+        const parsedDate = parseExcelDate(row.Date);
+        const parsedSavedAt = parseExcelDate(row["Saved at"]);
         const processedRow = {
-          date: formattedDate,
-          time: formattedTime,
-          saved_at: formattedSavedAt,
+          date: parsedDate ? parsedDate.toISOString().split('T')[0] : null,
+          saved_at: parsedSavedAt ? parsedSavedAt.toISOString() : null,
           title: row.Title || null,
           text: row.Text || null,
           post_type: row["Post type"] || null,
