@@ -83,17 +83,27 @@ export default function Home() {
           }
         });
 
+        // worksheet['!links'] ile gizli hyperlink desteği
+        const links = (worksheet['!links'] || []) as any[];
         (jsonData as any[]).forEach((row: any, i: number) => {
           if (urlColLetter) {
-            const cellAddress = `${urlColLetter}${i + 2}`; // 1. satır başlık, 2. satırdan başlar
+            const cellAddress = `${urlColLetter}${i + 2}`;
             const cell = worksheet[cellAddress];
-            if (cell && cell.f && cell.f.startsWith('HYPERLINK')) {
-              // Formül varsa, formülden linki ayıkla
+            const linkObj = links.find((l: any) => l.ref === cellAddress);
+            // Debug loglar
+            console.log(`Satır ${i + 2} (${cellAddress}) - worksheet hücresi:`, cell);
+            console.log(`Satır ${i + 2} (${cellAddress}) - worksheet['!links'] objesi:`, linkObj);
+            console.log(`Satır ${i + 2} (${cellAddress}) - row.URL (önce):`, row.URL);
+            if (linkObj && linkObj.Target) {
+              row.URL = linkObj.Target;
+            } else if (cell && cell.f && cell.f.startsWith('HYPERLINK')) {
               const match = cell.f.match(/HYPERLINK\(["']([^"']+)["']/i);
               if (match && match[1]) {
                 row.URL = match[1];
               }
             }
+            // Sonuç logu
+            console.log(`Satır ${i + 2} (${cellAddress}) - row.URL (sonra):`, row.URL);
           }
         });
 
@@ -145,6 +155,10 @@ export default function Home() {
         const parsedSavedAt = parseExcelDate(row["Saved at"]);
         const parsedTime = row.Time ? row.Time : null;
 
+        const normalize = (str: string) => (str || '').replace(/\s/g, '').toLowerCase();
+        const urlKey = Object.keys(row).find(k => normalize(k) === 'url');
+        const profileKey = Object.keys(row).find(k => normalize(k) === 'profile');
+        const pubPlaceProfileKey = Object.keys(row).find(k => normalize(k) === 'publicationplaceprofile');
         const processedRow = {
           date: parsedDate ? parsedDate.toISOString().split('T')[0] : null,
           time: parsedTime,
@@ -154,19 +168,19 @@ export default function Home() {
           post_type: row["Post type"] || null,
           content_types: row["Content Types"] || null,
           source_specific_format: row["Source specific format"] || null,
-          url: row.URL || null,
+          url: urlKey ? row[urlKey] : null,
           sentiment: row.Sentiment || null,
           topic: row.Topic || null,
           cluster: row.Cluster || null,
           author: row.Author || null,
           nickname: row.Nickname || null,
-          profile: row.Profile || null,
+          profile: profileKey ? row[profileKey] : null,
           subscribers: row.Subscribers ? parseFloat(row.Subscribers) : null,
           demography: row.Demography || null,
           age: row.Age ? parseFloat(row.Age) : null,
           source: row.Source || null,
           publication_place: row["Publication place"] || null,
-          publication_place_profile: row["Publication place profile"] || null,
+          publication_place_profile: pubPlaceProfileKey ? row[pubPlaceProfileKey] : null,
           publication_place_subscribers: row["Publication place subscribers"] ? parseFloat(row["Publication place subscribers"]) : null,
           resource_type: row["Resource type"] || null,
           language: row.Language || null,
