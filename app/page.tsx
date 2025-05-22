@@ -71,7 +71,36 @@ export default function Home() {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+        // URL sütununun harfini bul (ör: 'C')
+        const urlColLetter = Object.entries(worksheet)
+          .find(([key, val]) => key.endsWith('1') && (worksheet[key] as any).v === 'URL')?.[0]?.replace('1', '');
+
+        (jsonData as any[]).forEach((row: any, i: number) => {
+          if (urlColLetter) {
+            const cellAddress = `${urlColLetter}${i + 2}`; // 1. satır başlık, 2. satırdan başlar
+            const cell = worksheet[cellAddress];
+            if (cell && cell.f && cell.f.startsWith('HYPERLINK')) {
+              // Formül varsa, formülden linki ayıkla
+              const match = cell.f.match(/HYPERLINK\(["']([^"']+)["']/i);
+              if (match && match[1]) {
+                row.URL = match[1];
+              }
+            }
+          }
+        });
+
         setExcelData(jsonData);
+        if ((jsonData as any[]).length > 0) {
+          console.log('Excel anahtarları:', Object.keys(jsonData[0] as any));
+          (jsonData as any[]).forEach((row: any, i: number) => {
+            if (!row.URL) {
+              console.warn(`Satır ${i + 1} için URL alanı yok veya boş:`, row);
+            } else {
+              console.log(`Satır ${i + 1} için URL:`, row.URL);
+            }
+          });
+        }
       };
       reader.readAsArrayBuffer(file);
     }
@@ -87,6 +116,17 @@ export default function Home() {
     if (!excelData.length) {
       alert('Zəhmət olmasa əvvəlcə Excel faylı seçin!');
       return;
+    }
+    // Yükleme başında tekrar kontrol
+    if ((excelData as any[]).length > 0) {
+      console.log('Yükleme öncesi Excel anahtarları:', Object.keys((excelData as any[])[0]));
+      (excelData as any[]).forEach((row: any, i: number) => {
+        if (!row.URL) {
+          console.warn(`Yükleme öncesi Satır ${i + 1} için URL alanı yok veya boş:`, row);
+        } else {
+          console.log(`Yükleme öncesi Satır ${i + 1} için URL:`, row.URL);
+        }
+      });
     }
 
     try {
