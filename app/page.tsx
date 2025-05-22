@@ -72,9 +72,16 @@ export default function Home() {
         const worksheet = workbook.Sheets[sheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
 
-        // URL sütununun harfini bul (ör: 'C')
-        const urlColLetter = Object.entries(worksheet)
-          .find(([key, val]) => key.endsWith('1') && (worksheet[key] as any).v === 'URL')?.[0]?.replace('1', '');
+        // URL sütununun harfini esnek bul (ör: 'C')
+        let urlColLetter: string | undefined = undefined;
+        Object.entries(worksheet).forEach(([key, val]) => {
+          if (key.endsWith('1')) {
+            const cellValue = (worksheet[key] as any).v;
+            if (typeof cellValue === 'string' && cellValue.replace(/\s/g, '').toLowerCase() === 'url') {
+              urlColLetter = key.replace('1', '');
+            }
+          }
+        });
 
         (jsonData as any[]).forEach((row: any, i: number) => {
           if (urlColLetter) {
