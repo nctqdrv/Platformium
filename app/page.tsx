@@ -154,7 +154,7 @@ export default function Home() {
           post_type: row["Post type"] || null,
           content_types: row["Content Types"] || null,
           source_specific_format: row["Source specific format"] || null,
-          url: extractHyperlink(row.URL) || null,
+          url: row.URL || null,
           sentiment: row.Sentiment || null,
           topic: row.Topic || null,
           cluster: row.Cluster || null,
