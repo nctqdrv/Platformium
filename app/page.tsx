@@ -84,14 +84,17 @@ export default function Home() {
       const dataToInsert = excelData.map((row: any) => {
         const parsedDate = parseExcelDate(row.Date);
         const parsedSavedAt = parseExcelDate(row["Saved at"]);
+        const parsedTime = row.Time ? row.Time : null;
+
         const processedRow = {
           date: parsedDate ? parsedDate.toISOString().split('T')[0] : null,
+          time: parsedTime,
           saved_at: parsedSavedAt ? parsedSavedAt.toISOString() : null,
           title: row.Title || null,
           text: row.Text || null,
           post_type: row["Post type"] || null,
           content_types: row["Content Types"] || null,
-          source_specific_format: row["Source specific format"] ? parseFloat(row["Source specific format"]) : null,
+          source_specific_format: row["Source specific format"] || null,
           url: row.URL || null,
           sentiment: row.Sentiment || null,
           topic: row.Topic || null,
