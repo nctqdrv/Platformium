@@ -34,6 +34,18 @@ function parseExcelDate(value: any) {
   return null;
 }
 
+// Excel HYPERLINK formülünden gerçek linki ayıkla
+function extractHyperlink(cellValue: any) {
+  if (typeof cellValue === 'string' && cellValue.startsWith('=HYPERLINK(')) {
+    // =HYPERLINK("https://...") veya =HYPERLINK("https://...";"görünen metin")
+    const match = cellValue.match(/=HYPERLINK\(["']([^"']+)["']/i);
+    if (match && match[1]) {
+      return match[1];
+    }
+  }
+  return cellValue;
+}
+
 // Progress type tanımı ekleyelim
 type ProgressInfo = {
   current: number;
@@ -95,7 +107,7 @@ export default function Home() {
           post_type: row["Post type"] || null,
           content_types: row["Content Types"] || null,
           source_specific_format: row["Source specific format"] || null,
-          url: row.URL || null,
+          url: extractHyperlink(row.URL) || null,
           sentiment: row.Sentiment || null,
           topic: row.Topic || null,
           cluster: row.Cluster || null,
