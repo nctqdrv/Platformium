@@ -53,7 +53,7 @@ Sadəcə cluster nömrəsini yaz. Məsələn: "1" və ya "2" və s.`;
 
     console.log('API isteği gönderiliyor...');
 
-    const msg = await anthropic.messages.create({
+    const stream = await anthropic.messages.stream({
       model: "claude-opus-4-1-20250805",
       max_tokens: 32000,
       temperature: 0.2,
@@ -71,9 +71,16 @@ Sadəcə cluster nömrəsini yaz. Məsələn: "1" və ya "2" və s.`;
       ]
     });
 
-    console.log('API yanıtı:', msg);
+    let cluster = '';
+    
+    for await (const messageStreamEvent of stream) {
+      if (messageStreamEvent.type === 'content_block_delta' && 
+          messageStreamEvent.delta.type === 'text_delta') {
+        cluster += messageStreamEvent.delta.text;
+      }
+    }
 
-    const cluster = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '';
+    cluster = cluster.trim();
     console.log('Belirlenen cluster:', cluster);
 
     return NextResponse.json({

@@ -32,7 +32,7 @@ Nəticəni aşağıdakı formada təqdim et:
 
 Sadəcə bir sözlə cavab ver: müsbət, neytral, mənfi və ya əlaqəsiz.`;
 
-    const msg = await anthropic.messages.create({
+    const stream = await anthropic.messages.stream({
       model: "claude-opus-4-1-20250805",
       max_tokens: 32000,
       temperature: 0.2,
@@ -50,9 +50,16 @@ Sadəcə bir sözlə cavab ver: müsbət, neytral, mənfi və ya əlaqəsiz.`;
       ]
     });
 
-    console.log('Sentiment API yanıtı:', msg);
+    let sentiment = '';
+    
+    for await (const messageStreamEvent of stream) {
+      if (messageStreamEvent.type === 'content_block_delta' && 
+          messageStreamEvent.delta.type === 'text_delta') {
+        sentiment += messageStreamEvent.delta.text;
+      }
+    }
 
-    const sentiment = msg.content[0].type === 'text' ? msg.content[0].text.trim() : '';
+    sentiment = sentiment.trim();
     console.log('Belirlenen sentiment:', sentiment);
 
     return NextResponse.json({
