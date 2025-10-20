@@ -43,8 +43,8 @@ Cavabların daxilində bahis sözündən istifadə etmə, onun yerinə mərc sö
 Əgər yazılarda Cahangir Fərəcullayev, Dilarə Bəylərova, Burak Karadağ, Emir Türkmen, Serkan Şener adları istifadə olunubsa, o zaman Azərlotereya | Rəhbərlik cavabını ver.`;
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-7-sonnet-20250219",
-      max_tokens: 20000,
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 8000,
       temperature: 0.2,
       system: systemPrompt,
       messages: [
@@ -76,4 +76,4 @@ Cavabların daxilində bahis sözündən istifadə etmə, onun yerinə mərc sö
       { status: 500 }
     );
   }
-} 
+}

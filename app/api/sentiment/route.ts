@@ -33,8 +33,8 @@ Nəticəni aşağıdakı formada təqdim et:
 Sadəcə bir sözlə cavab ver: müsbət, neytral, mənfi və ya əlaqəsiz.`;
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-7-sonnet-20250219",
-      max_tokens: 20000,
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 8000,
       temperature: 0.2,
       system: systemPrompt,
       messages: [
@@ -66,4 +66,4 @@ Sadəcə bir sözlə cavab ver: müsbət, neytral, mənfi və ya əlaqəsiz.`;
       { status: 500 }
     );
   }
-} 
+}

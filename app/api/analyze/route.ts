@@ -47,8 +47,8 @@ Məsələn:
     console.log('API isteği gönderiliyor...');
 
     const msg = await anthropic.messages.create({
-      model: "claude-3-7-sonnet-20250219",
-      max_tokens: 20000,
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 8000,
       temperature: 0.2,
       system: systemPrompt,
       messages: [
@@ -80,4 +80,4 @@ Məsələn:
       { status: 500 }
     );
   }
-} 
+}
