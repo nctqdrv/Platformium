@@ -54,7 +54,7 @@ Sadəcə cluster nömrəsini yaz. Məsələn: "1" və ya "2" və s.`;
     console.log('API isteği gönderiliyor...');
 
     const stream = await anthropic.messages.stream({
-      model: "claude-opus-4-1-20250805",
+      model: "claude-sonnet-4-20250514",
       max_tokens: 32000,
       temperature: 0.2,
       system: systemPrompt,
